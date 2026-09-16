@@ -17,7 +17,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Slice;
 import unhideflags.ConfigHandler;
-import unhideflags.TooltipObfuscationHelper;
+import unhideflags.util.TooltipObfuscationHelper;
 
 import java.util.ArrayList;
 import java.util.List;

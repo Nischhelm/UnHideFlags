@@ -8,8 +8,8 @@
   "url": "https://www.curseforge.com/members/Nischhelm/projects",
   "updateUrl": "",
   "authorList": ${mod_author},
-  "credits": "FonnyMunkey FermiumTemplateMod",
-  "logoFile": "",
+  "credits": "fonnymunkeys FermiumTemplateMod",
+  "logoFile": "logo.png",
   "dependencies": []
 }
 ]
