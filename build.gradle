@@ -3,6 +3,8 @@ plugins {
     id 'idea'
     id 'net.minecraftforge.gradle' version "${forge_gradle_version}"
     id 'org.spongepowered.mixin' version "${mixin_gradle_version}"
+    id 'wtf.gofancy.fancygradle' version "${fancy_gradle_version}"
+    id 'me.modmuss50.mod-publish-plugin' version "${mod_publish_gradle_version}"
 }
 
 version = mod_version
@@ -16,10 +18,10 @@ minecraft {
 
     runs {
         client {
-            args "--username=InDev"
+            args "--username=Nischhelm"
 
             jvmArg "-Dfml.coreMods.load=${mixin_loader_class}"
-            jvmArg "-Dmixin.hotSwap=true"
+//            jvmArg "-Dmixin.hotSwap=true"
             jvmArg "-Dmixin.checks.interfaces=true"
 
             workingDirectory project.file('run')
@@ -31,7 +33,7 @@ minecraft {
         server {
 
             jvmArg "-Dfml.coreMods.load=${mixin_loader_class}"
-            jvmArg "-Dmixin.hotSwap=true"
+//            jvmArg "-Dmixin.hotSwap=true"
             jvmArg "-Dmixin.checks.interfaces=true"
 
             workingDirectory project.file('run')
@@ -56,12 +58,19 @@ dependencies {
     annotationProcessor "io.github.llamalad7:mixinextras-common:${mixin_extras_version}"
 
     implementation fg.deobf("curse.maven:fermiumbooter-${fermiumbooter_version}")
-	
-    implementation fg.deobf("curse.maven:jei-${jei_version}")
 }
 
 mixin {
     add sourceSets.main, "mixins.${mod_id}.refmap.json"
+}
+
+fancyGradle {
+    patches {
+        resources
+        coremods
+        asm
+        mergetool
+    }
 }
 
 processResources {
@@ -93,10 +102,51 @@ jar {
                 'Implementation-Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
                 'FMLCorePlugin': mixin_loader_class,
                 'FMLCorePluginContainsFMLMod': 'true',
-                'ForceLoadAsMod': 'true', //Comment out in dev environment, uncomment for building
+                'ForceLoadAsMod': gradle.startParameter.taskNames[0] != 'runClient' && gradle.startParameter.taskNames[0] != 'runServer',
                 'TweakClass': 'org.spongepowered.asm.launch.MixinTweaker'
         ])
     }
 }
 
 jar.finalizedBy('reobfJar')
+
+publishMods {
+    file = jar.archiveFile
+    changelog = providers.environmentVariable("CHANGELOG").orElse("See GitHub releases for changelog")
+    version = mod_version
+    type = STABLE
+    modLoaders.add("forge")
+
+    if (project.findProperty("publish_to_github") == "true") {
+        github {
+            accessToken = providers.environmentVariable("GITHUB_TOKEN")
+            repository = providers.environmentVariable("GITHUB_REPOSITORY").orElse("owner/repo")
+            commitish = "main"
+        }
+    }
+
+    if (project.findProperty("curseforge_project_id")) {
+        curseforge {
+            accessToken = providers.environmentVariable("CURSEFORGE_TOKEN")
+            projectId = project.findProperty("curseforge_project_id")
+            minecraftVersions.add(minecraft_version)
+            modLoaders.add("forge")
+
+            client = true
+            server = false
+
+            requires("fermiumbooter")
+        }
+    }
+
+    if (project.findProperty("modrinth_project_id")) {
+        modrinth {
+            accessToken = providers.environmentVariable("MODRINTH_TOKEN")
+            projectId = project.findProperty("modrinth_project_id")
+            minecraftVersions.add(minecraft_version)
+            modLoaders.add("forge")
+
+            requires("fermiumbooter")
+        }
+    }
+}
