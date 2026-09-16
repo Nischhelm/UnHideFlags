@@ -1,6 +1,7 @@
 package unhideflags.mixin;
 
-import com.llamalad7.mixinextras.expression.Definition;import com.llamalad7.mixinextras.expression.Expression;
+import com.llamalad7.mixinextras.expression.Definition;
+import com.llamalad7.mixinextras.expression.Expression;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
@@ -11,22 +12,18 @@ import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Slice;
 import unhideflags.ConfigHandler;
+import unhideflags.TooltipObfuscationTimerProvider;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Mixin(ItemStack.class)
 public abstract class ItemStackMixin {
-
-
-
 
     @Expression("?.hasKey('HideFlags', 99)")
     @Definition(id = "hasKey", method = "Lnet/minecraft/nbt/NBTTagCompound;hasKey(Ljava/lang/String;I)Z")
@@ -67,9 +64,10 @@ public abstract class ItemStackMixin {
             @Share("hideEnchantments") LocalBooleanRef hideEnchantments,
             @Share("lineCounter") LocalIntRef lineCounter
     ) {
-        lineCounter.set(lineCounter.get() + 1);
+        int currentLine = lineCounter.get() + 1;
+        lineCounter.set(currentLine);
         if (hideEnchantments.get())
-            return ConfigHandler.scrambleUnHide && original.call(instance, TextFormatting.OBFUSCATED + (String) addedObj);
+            return ConfigHandler.scrambleUnHide && original.call(instance, TooltipObfuscationTimerProvider.getTimedObfuscationPrefix(currentLine) + addedObj);
         else
             return original.call(instance, addedObj);
     }
@@ -91,9 +89,10 @@ public abstract class ItemStackMixin {
             @Share("hideAttributes") LocalBooleanRef hideAttributes,
             @Share("lineCounter") LocalIntRef lineCounter
     ) {
-        lineCounter.set(lineCounter.get() + 1);
+        int currentLine = lineCounter.get() + 1;
+        lineCounter.set(currentLine);
         if (hideAttributes.get())
-            return ConfigHandler.scrambleUnHide && original.call(instance, TextFormatting.OBFUSCATED + (String) addedObj);
+            return ConfigHandler.scrambleUnHide && original.call(instance, TooltipObfuscationTimerProvider.getTimedObfuscationPrefix(currentLine) + addedObj);
         else
             return original.call(instance, addedObj);
     }
@@ -109,9 +108,10 @@ public abstract class ItemStackMixin {
             @Share("hideUnbreakable") LocalBooleanRef hideUnbreakable,
             @Share("lineCounter") LocalIntRef lineCounter
     ) {
-        lineCounter.set(lineCounter.get() + 1);
+        int currentLine = lineCounter.get() + 1;
+        lineCounter.set(currentLine);
         if (hideUnbreakable.get())
-            return ConfigHandler.scrambleUnHide && original.call(instance, TextFormatting.OBFUSCATED + (String) addedObj);
+            return ConfigHandler.scrambleUnHide && original.call(instance, TooltipObfuscationTimerProvider.getTimedObfuscationPrefix(currentLine) + addedObj);
         else
             return original.call(instance, addedObj);
     }
@@ -135,9 +135,10 @@ public abstract class ItemStackMixin {
             @Share("hideCanDestroy") LocalBooleanRef hideCanDestroy,
             @Share("lineCounter") LocalIntRef lineCounter
     ) {
-        lineCounter.set(lineCounter.get() + 1);
+        int currentLine = lineCounter.get() + 1;
+        lineCounter.set(currentLine);
         if (hideCanDestroy.get())
-            return ConfigHandler.scrambleUnHide && original.call(instance, TextFormatting.OBFUSCATED + (String) addedObj);
+            return ConfigHandler.scrambleUnHide && original.call(instance, TooltipObfuscationTimerProvider.getTimedObfuscationPrefix(currentLine) + addedObj);
         else
             return original.call(instance, addedObj);
     }
@@ -159,9 +160,10 @@ public abstract class ItemStackMixin {
             @Share("hideCanPlaceOn") LocalBooleanRef hideCanPlaceOn,
             @Share("lineCounter") LocalIntRef lineCounter
     ) {
-        lineCounter.set(lineCounter.get() + 1);
+        int currentLine = lineCounter.get() + 1;
+        lineCounter.set(currentLine);
         if (hideCanPlaceOn.get())
-            return ConfigHandler.scrambleUnHide && original.call(instance, TextFormatting.OBFUSCATED + (String) addedObj);
+            return ConfigHandler.scrambleUnHide && original.call(instance, TooltipObfuscationTimerProvider.getTimedObfuscationPrefix(currentLine) + addedObj);
         else
             return original.call(instance, addedObj);
     }
@@ -177,18 +179,23 @@ public abstract class ItemStackMixin {
             @Share("hideAddedInformation") LocalBooleanRef hideAddedInformation,
             @Share("lineCounter") LocalIntRef lineCounter
     ) {
-        lineCounter.set(lineCounter.get() + 1);
+        int currentLine = lineCounter.get() + 1;
+        lineCounter.set(currentLine);
         if (hideAddedInformation.get()) {
             if (!ConfigHandler.scrambleUnHide) return;
+
             List<String> tooltipsBeforeCall = new ArrayList<>(tooltipLines);
             original.call(instance, stack, world, tooltipLines, advancedFlag);
+
+            String prefix = TooltipObfuscationTimerProvider.getTimedObfuscationPrefix(currentLine);
             for (int i = 0; i < tooltipsBeforeCall.size(); i++) {
                 String newLine = tooltipLines.get(i);
                 if (!tooltipsBeforeCall.contains(newLine)) {
-                    tooltipLines.set(i, TextFormatting.OBFUSCATED + newLine); //replace
+                    tooltipLines.set(i, prefix + newLine);
                 }
             }
-        } else
+        } else {
             original.call(instance, stack, world, tooltipLines, advancedFlag);
+        }
     }
 }
