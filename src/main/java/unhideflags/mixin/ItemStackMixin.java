@@ -6,6 +6,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalBooleanRef;
+import com.llamalad7.mixinextras.sugar.ref.LocalIntRef;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -14,6 +15,7 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Slice;
 import unhideflags.ConfigHandler;
 
@@ -22,6 +24,7 @@ import java.util.List;
 
 @Mixin(ItemStack.class)
 public abstract class ItemStackMixin {
+
 
 
 
@@ -36,8 +39,11 @@ public abstract class ItemStackMixin {
             @Share("hideUnbreakable") LocalBooleanRef hideUnbreakable,
             @Share("hideCanDestroy") LocalBooleanRef hideCanDestroy,
             @Share("hideCanPlaceOn") LocalBooleanRef hideCanPlaceOn,
-            @Share("hideAddedInformation") LocalBooleanRef hideAddedInformation
+            @Share("hideAddedInformation") LocalBooleanRef hideAddedInformation,
+            @Share("lineCounter") LocalIntRef lineCounter
     ) {
+        lineCounter.set(0);
+
         int hideFlags = instance.getInteger(key); //if not present (or if present but not integer): 0 = show all
 
         hideEnchantments.set((hideFlags & 1) != 0);
@@ -58,8 +64,10 @@ public abstract class ItemStackMixin {
     private boolean unhideflags_obfuscateHiddenEnchantments(
             List<String> instance, Object addedObj,
             Operation<Boolean> original,
-            @Share("hideEnchantments") LocalBooleanRef hideEnchantments
+            @Share("hideEnchantments") LocalBooleanRef hideEnchantments,
+            @Share("lineCounter") LocalIntRef lineCounter
     ) {
+        lineCounter.set(lineCounter.get() + 1);
         if (hideEnchantments.get())
             return ConfigHandler.scrambleUnHide && original.call(instance, TextFormatting.OBFUSCATED + (String) addedObj);
         else
@@ -80,8 +88,10 @@ public abstract class ItemStackMixin {
     private boolean unhideflags_obfuscateHiddenAttributes(
             List<String> instance, Object addedObj,
             Operation<Boolean> original,
-            @Share("hideAttributes") LocalBooleanRef hideAttributes
+            @Share("hideAttributes") LocalBooleanRef hideAttributes,
+            @Share("lineCounter") LocalIntRef lineCounter
     ) {
+        lineCounter.set(lineCounter.get() + 1);
         if (hideAttributes.get())
             return ConfigHandler.scrambleUnHide && original.call(instance, TextFormatting.OBFUSCATED + (String) addedObj);
         else
@@ -96,8 +106,10 @@ public abstract class ItemStackMixin {
     private boolean unhideflags_obfuscateHiddenUnbreakable(
             List<String> instance, Object addedObj,
             Operation<Boolean> original,
-            @Share("hideUnbreakable") LocalBooleanRef hideUnbreakable
+            @Share("hideUnbreakable") LocalBooleanRef hideUnbreakable,
+            @Share("lineCounter") LocalIntRef lineCounter
     ) {
+        lineCounter.set(lineCounter.get() + 1);
         if (hideUnbreakable.get())
             return ConfigHandler.scrambleUnHide && original.call(instance, TextFormatting.OBFUSCATED + (String) addedObj);
         else
@@ -120,8 +132,10 @@ public abstract class ItemStackMixin {
     private boolean unhideflags_obfuscateHiddenCanDestroy(
             List<String> instance, Object addedObj,
             Operation<Boolean> original,
-            @Share("hideCanDestroy") LocalBooleanRef hideCanDestroy
+            @Share("hideCanDestroy") LocalBooleanRef hideCanDestroy,
+            @Share("lineCounter") LocalIntRef lineCounter
     ) {
+        lineCounter.set(lineCounter.get() + 1);
         if (hideCanDestroy.get())
             return ConfigHandler.scrambleUnHide && original.call(instance, TextFormatting.OBFUSCATED + (String) addedObj);
         else
@@ -142,8 +156,10 @@ public abstract class ItemStackMixin {
     private boolean unhideflags_obfuscateHiddenCanPlaceOn(
             List<String> instance, Object addedObj,
             Operation<Boolean> original,
-            @Share("hideCanPlaceOn") LocalBooleanRef hideCanPlaceOn
+            @Share("hideCanPlaceOn") LocalBooleanRef hideCanPlaceOn,
+            @Share("lineCounter") LocalIntRef lineCounter
     ) {
+        lineCounter.set(lineCounter.get() + 1);
         if (hideCanPlaceOn.get())
             return ConfigHandler.scrambleUnHide && original.call(instance, TextFormatting.OBFUSCATED + (String) addedObj);
         else
@@ -158,8 +174,10 @@ public abstract class ItemStackMixin {
     private void unhideflags_obfuscateHiddenAddedInformation(
             Item instance, ItemStack stack, World world, List<String> tooltipLines, ITooltipFlag advancedFlag,
             Operation<Void> original,
-            @Share("hideAddedInformation") LocalBooleanRef hideAddedInformation
+            @Share("hideAddedInformation") LocalBooleanRef hideAddedInformation,
+            @Share("lineCounter") LocalIntRef lineCounter
     ) {
+        lineCounter.set(lineCounter.get() + 1);
         if (hideAddedInformation.get()) {
             if (!ConfigHandler.scrambleUnHide) return;
             List<String> tooltipsBeforeCall = new ArrayList<>(tooltipLines);
