@@ -17,7 +17,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Slice;
 import unhideflags.ConfigHandler;
-import unhideflags.TooltipObfuscationTimerProvider;
+import unhideflags.TooltipObfuscationHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -67,7 +67,7 @@ public abstract class ItemStackMixin {
         int currentLine = lineCounter.get() + 1;
         lineCounter.set(currentLine);
         if (hideEnchantments.get())
-            return ConfigHandler.scrambleUnHide && original.call(instance, TooltipObfuscationTimerProvider.getTimedObfuscationPrefix(currentLine) + addedObj);
+            return original.call(instance, ConfigHandler.scrambleUnHide ? TooltipObfuscationHelper.getTimedObfuscationPrefix((String) addedObj, currentLine) : addedObj);
         else
             return original.call(instance, addedObj);
     }
@@ -78,10 +78,10 @@ public abstract class ItemStackMixin {
             method = "getTooltip",
             at = @At(value = "INVOKE", target = "Ljava/util/List;add(Ljava/lang/Object;)Z"),
             slice = @Slice(
-                    from = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;getAttributeModifiers(Lnet/minecraft/inventory/EntityEquipmentSlot;)Lcom/google/common/collect/Multimap;"),
+                    from = @At(value = "INVOKE", target = "Lnet/minecraft/entity/ai/attributes/AttributeModifier;getOperation()I", ordinal = 0),
                     to = @At("MIXINEXTRAS:EXPRESSION")
             ),
-            require = 5
+            require = 2
     )
     private boolean unhideflags_obfuscateHiddenAttributes(
             List<String> instance, Object addedObj,
@@ -92,7 +92,7 @@ public abstract class ItemStackMixin {
         int currentLine = lineCounter.get() + 1;
         lineCounter.set(currentLine);
         if (hideAttributes.get())
-            return ConfigHandler.scrambleUnHide && original.call(instance, TooltipObfuscationTimerProvider.getTimedObfuscationPrefix(currentLine) + addedObj);
+            return original.call(instance, ConfigHandler.scrambleUnHide ? TooltipObfuscationHelper.getTimedObfuscationPrefix((String) addedObj, currentLine) : addedObj);
         else
             return original.call(instance, addedObj);
     }
@@ -111,23 +111,21 @@ public abstract class ItemStackMixin {
         int currentLine = lineCounter.get() + 1;
         lineCounter.set(currentLine);
         if (hideUnbreakable.get())
-            return ConfigHandler.scrambleUnHide && original.call(instance, TooltipObfuscationTimerProvider.getTimedObfuscationPrefix(currentLine) + addedObj);
+            return original.call(instance, ConfigHandler.scrambleUnHide ? TooltipObfuscationHelper.getTimedObfuscationPrefix((String) addedObj, currentLine) : addedObj);
         else
             return original.call(instance, addedObj);
     }
 
-    @Definition(id = "getTagList", method = "Lnet/minecraft/nbt/NBTTagCompound;getTagList(Ljava/lang/String;I)Lnet/minecraft/nbt/NBTTagList;")
     @Definition(id = "hasKey", method = "Lnet/minecraft/nbt/NBTTagCompound;hasKey(Ljava/lang/String;I)Z")
-    @Expression(value = "?.getTagList('CanDestroy', 8)", id = "before")
-    @Expression(value = "?.hasKey('CanPlaceOn', 9)", id = "after")
+    @Expression(value = "?.hasKey('CanPlaceOn', 9)")
     @WrapOperation(
             method = "getTooltip",
             at = @At(value = "INVOKE", target = "Ljava/util/List;add(Ljava/lang/Object;)Z"),
             slice = @Slice(
-                    from = @At(value = "MIXINEXTRAS:EXPRESSION", id = "before"),
-                    to = @At(value = "MIXINEXTRAS:EXPRESSION", id = "after")
+                    from = @At(value = "INVOKE", target = "Lnet/minecraft/block/Block;getBlockFromName(Ljava/lang/String;)Lnet/minecraft/block/Block;", ordinal = 0),
+                    to = @At(value = "MIXINEXTRAS:EXPRESSION")
             ),
-            require = 4
+            require = 2
     )
     private boolean unhideflags_obfuscateHiddenCanDestroy(
             List<String> instance, Object addedObj,
@@ -138,21 +136,19 @@ public abstract class ItemStackMixin {
         int currentLine = lineCounter.get() + 1;
         lineCounter.set(currentLine);
         if (hideCanDestroy.get())
-            return ConfigHandler.scrambleUnHide && original.call(instance, TooltipObfuscationTimerProvider.getTimedObfuscationPrefix(currentLine) + addedObj);
+            return original.call(instance, ConfigHandler.scrambleUnHide ? TooltipObfuscationHelper.getTimedObfuscationPrefix((String) addedObj, currentLine) : addedObj);
         else
             return original.call(instance, addedObj);
     }
 
-    @Expression(value = "?.getTagList('CanPlaceOn', 8)", id = "before")
-    @Definition(id = "getTagList", method = "Lnet/minecraft/nbt/NBTTagCompound;getTagList(Ljava/lang/String;I)Lnet/minecraft/nbt/NBTTagList;")
     @WrapOperation(
             method = "getTooltip",
             at = @At(value = "INVOKE", target = "Ljava/util/List;add(Ljava/lang/Object;)Z"),
             slice = @Slice(
-                    from = @At(value = "MIXINEXTRAS:EXPRESSION", id = "before"),
+                    from = @At(value = "INVOKE", id = "before", target = "Lnet/minecraft/block/Block;getBlockFromName(Ljava/lang/String;)Lnet/minecraft/block/Block;", ordinal = 1),
                     to = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;isItemDamaged()Z")
             ),
-            require = 4
+            require = 2
     )
     private boolean unhideflags_obfuscateHiddenCanPlaceOn(
             List<String> instance, Object addedObj,
@@ -163,7 +159,7 @@ public abstract class ItemStackMixin {
         int currentLine = lineCounter.get() + 1;
         lineCounter.set(currentLine);
         if (hideCanPlaceOn.get())
-            return ConfigHandler.scrambleUnHide && original.call(instance, TooltipObfuscationTimerProvider.getTimedObfuscationPrefix(currentLine) + addedObj);
+            return original.call(instance, ConfigHandler.scrambleUnHide ? TooltipObfuscationHelper.getTimedObfuscationPrefix((String) addedObj, currentLine) : addedObj);
         else
             return original.call(instance, addedObj);
     }
@@ -187,11 +183,10 @@ public abstract class ItemStackMixin {
             List<String> tooltipsBeforeCall = new ArrayList<>(tooltipLines);
             original.call(instance, stack, world, tooltipLines, advancedFlag);
 
-            String prefix = TooltipObfuscationTimerProvider.getTimedObfuscationPrefix(currentLine);
             for (int i = 0; i < tooltipsBeforeCall.size(); i++) {
                 String newLine = tooltipLines.get(i);
                 if (!tooltipsBeforeCall.contains(newLine)) {
-                    tooltipLines.set(i, prefix + newLine);
+                    tooltipLines.set(i, ConfigHandler.scrambleUnHide ? TooltipObfuscationHelper.getTimedObfuscationPrefix(newLine, currentLine) : newLine);
                 }
             }
         } else {
