@@ -27,7 +27,7 @@ public abstract class ItemStackMixin {
 
     @Expression("?.hasKey('HideFlags', 99)")
     @Definition(id = "hasKey", method = "Lnet/minecraft/nbt/NBTTagCompound;hasKey(Ljava/lang/String;I)Z")
-    @WrapOperation(method = "getTooltip", at = @At(value = "MIXINEXTRAS:EXPRESSION"))
+    @WrapOperation(method = "getTooltip", at = @At(value = "MIXINEXTRAS:EXPRESSION"), require = 1)
     public boolean unhideflags_skipNormalHideFlagHandling(
             NBTTagCompound instance, String key, int type,
             Operation<Boolean> original,
@@ -54,10 +54,7 @@ public abstract class ItemStackMixin {
     @Definition(id = "list", local = @Local(type = List.class))
     @Definition(id = "add", method = "Ljava/util/List;add(Ljava/lang/Object;)Z")
     @Definition(id = "getTranslatedName", method = "Lnet/minecraft/enchantment/Enchantment;getTranslatedName(I)Ljava/lang/String;")
-    @WrapOperation(
-            method = "getTooltip",
-            at = @At("MIXINEXTRAS:EXPRESSION")
-    )
+    @WrapOperation(method = "getTooltip", at = @At("MIXINEXTRAS:EXPRESSION"), require = 1)
     private boolean unhideflags_obfuscateHiddenEnchantments(
             List<String> instance, Object addedObj,
             Operation<Boolean> original,
@@ -77,7 +74,8 @@ public abstract class ItemStackMixin {
             slice = @Slice(
                     from = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;getAttributeModifiers(Lnet/minecraft/inventory/EntityEquipmentSlot;)Lcom/google/common/collect/Multimap;"),
                     to = @At("MIXINEXTRAS:EXPRESSION")
-            )
+            ),
+            require = 5
     )
     private boolean unhideflags_obfuscateHiddenAttributes(
             List<String> instance, Object addedObj,
@@ -94,10 +92,7 @@ public abstract class ItemStackMixin {
     @Definition(id = "list", local = @Local(type = List.class))
     @Definition(id = "add", method = "Ljava/util/List;add(Ljava/lang/Object;)Z")
     @Definition(id = "translateToLocal", method = "Lnet/minecraft/util/text/translation/I18n;translateToLocal(Ljava/lang/String;)Ljava/lang/String;")
-    @WrapOperation(
-            method = "getTooltip",
-            at = @At("MIXINEXTRAS:EXPRESSION")
-    )
+    @WrapOperation(method = "getTooltip", at = @At("MIXINEXTRAS:EXPRESSION"), require = 1)
     private boolean unhideflags_obfuscateHiddenUnbreakable(
             List<String> instance, Object addedObj,
             Operation<Boolean> original,
@@ -119,7 +114,8 @@ public abstract class ItemStackMixin {
             slice = @Slice(
                     from = @At(value = "MIXINEXTRAS:EXPRESSION", id = "before"),
                     to = @At(value = "MIXINEXTRAS:EXPRESSION", id = "after")
-            )
+            ),
+            require = 4
     )
     private boolean unhideflags_obfuscateHiddenCanDestroy(
             List<String> instance, Object addedObj,
@@ -140,7 +136,8 @@ public abstract class ItemStackMixin {
             slice = @Slice(
                     from = @At(value = "MIXINEXTRAS:EXPRESSION", id = "before"),
                     to = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;isItemDamaged()Z")
-            )
+            ),
+            require = 4
     )
     private boolean unhideflags_obfuscateHiddenCanPlaceOn(
             List<String> instance, Object addedObj,
@@ -155,7 +152,8 @@ public abstract class ItemStackMixin {
 
     @WrapOperation(
             method = "getTooltip",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/item/Item;addInformation(Lnet/minecraft/item/ItemStack;Lnet/minecraft/world/World;Ljava/util/List;Lnet/minecraft/client/util/ITooltipFlag;)V")
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/item/Item;addInformation(Lnet/minecraft/item/ItemStack;Lnet/minecraft/world/World;Ljava/util/List;Lnet/minecraft/client/util/ITooltipFlag;)V"),
+            require = 1
     )
     private void unhideflags_obfuscateHiddenAddedInformation(
             Item instance, ItemStack stack, World world, List<String> tooltipLines, ITooltipFlag advancedFlag,
