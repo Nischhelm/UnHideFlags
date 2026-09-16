@@ -183,7 +183,7 @@ public abstract class ItemStackMixin {
             List<String> tooltipsBeforeCall = new ArrayList<>(tooltipLines);
             original.call(instance, stack, world, tooltipLines, advancedFlag);
 
-            for (int i = 0; i < tooltipsBeforeCall.size(); i++) {
+            for (int i = 0; i < tooltipLines.size(); i++) {
                 String newLine = tooltipLines.get(i);
                 if (!tooltipsBeforeCall.contains(newLine)) {
                     tooltipLines.set(i, ConfigHandler.scrambleUnHide ? TooltipObfuscationHelper.getTimedObfuscationPrefix(newLine, currentLine) : newLine);
