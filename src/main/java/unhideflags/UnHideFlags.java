@@ -9,7 +9,9 @@ import org.apache.logging.log4j.Logger;
         modid = UnHideFlags.MODID,
         version = UnHideFlags.VERSION,
         name = UnHideFlags.NAME,
-        dependencies = "required-after:fermiumbooter@[1.3.2,)"
+        dependencies = "required-after:fermiumbooter@[1.3.2,)",
+        acceptableRemoteVersions = "*",
+        clientSideOnly = true
 )
 public class UnHideFlags {
     public static final String MODID = "unhideflags";
