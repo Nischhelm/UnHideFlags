@@ -13,6 +13,6 @@ import org.apache.logging.log4j.Logger;
 )
 public class UnHideFlags {
     public static final String MODID = "unhideflags";
-    public static final String VERSION = "2.0.0";
+    public static final String VERSION = "2.1.0";
     public static final String NAME = "UnHideFlags";
 }
