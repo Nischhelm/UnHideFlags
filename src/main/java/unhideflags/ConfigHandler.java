@@ -8,6 +8,10 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 @Config(modid = UnHideFlags.MODID)
 public class ConfigHandler {
+    @Config.Comment("Items that should keep their default HideFlags behavior (example: minecraft:iron_sword)")
+    @Config.Name("Item Blacklist")
+    public static String[] itemBlacklist = new String[0];
+
     @Config.Comment("Instead of fully unhiding hidden info, display it as scrambled with short phases of being readable")
     @Config.Name("Scramble unhidden text")
     public static boolean scrambleUnHide = true;
@@ -36,9 +40,8 @@ public class ConfigHandler {
     public static class EventHandler {
         @SubscribeEvent
         public static void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent event) {
-            if(event.getModID().equals(UnHideFlags.MODID)) {
+            if(event.getModID().equals(UnHideFlags.MODID))
                 ConfigManager.sync(UnHideFlags.MODID, Config.Type.INSTANCE);
-            }
         }
     }
 }

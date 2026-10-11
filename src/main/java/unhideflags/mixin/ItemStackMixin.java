@@ -12,8 +12,10 @@ import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Slice;
 import unhideflags.ConfigHandler;
@@ -24,6 +26,16 @@ import java.util.List;
 
 @Mixin(ItemStack.class)
 public abstract class ItemStackMixin {
+
+    @Unique
+    private boolean unhideflags$isBlacklisted() {
+        ResourceLocation loc = ((ItemStack) (Object) this).getItem().getRegistryName();
+        if (loc == null) return false;
+        String itemId = loc.toString();
+        for (String blacklisted : ConfigHandler.itemBlacklist)
+            if (itemId.equals(blacklisted)) return true;
+        return false;
+    }
 
     @Expression("?.hasKey('HideFlags', 99)")
     @Definition(id = "hasKey", method = "Lnet/minecraft/nbt/NBTTagCompound;hasKey(Ljava/lang/String;I)Z")
@@ -40,6 +52,8 @@ public abstract class ItemStackMixin {
             @Share("lineCounter") LocalIntRef lineCounter
     ) {
         lineCounter.set(0);
+
+        if (unhideflags$isBlacklisted()) return original.call(instance, key, type);
 
         int hideFlags = instance.getInteger(key); //if not present (or if present but not integer): 0 = show all
 
